@@ -88,13 +88,24 @@ def build_handoff(
     side_effects = [
         event.action
         for event in traces
-        if event.phase == "tool" and event.action in {"book_seat", "pay"}
+        if event.phase == "tool"
+        and event.action in {"book_seat", "pay"}
+        and event.observation is not None
+        and event.observation.status.value == "ok"
+    ]
+    unverified_side_effects = [
+        event.action
+        for event in traces
+        if event.phase == "tool"
+        and event.action in {"book_seat", "pay"}
+        and event.decision == "tool_output_malformed_after_dispatch"
     ]
     return {
         "status": status.value,
         "completed_to": traces[-1].decision if traces else "no_action_taken",
         "attempted_actions": attempted,
         "side_effects": side_effects,
+        "unverified_side_effects": unverified_side_effects,
         "pending_action": pending_action,
         "question": question or "Please provide the decision needed to resume this run.",
     }

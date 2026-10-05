@@ -34,6 +34,8 @@ class RunStatus(StrEnum):
     TOOL_ERROR = "tool_error"
     INVALID_OUTPUT = "invalid_output"
     DENIED = "denied"
+    MODEL_ERROR = "model_error"
+    USAGE_UNAVAILABLE = "usage_unavailable"
 
 
 class AgentModel(BaseModel):
@@ -158,9 +160,37 @@ class TraceEvent(AgentModel):
     stop_reason: RunStatus | None = None
 
 
+class ProposedToolCall(AgentModel):
+    tool_call_id: str = Field(min_length=1, max_length=128)
+    name: str = Field(min_length=1, max_length=64)
+    args: dict[str, Any] = Field(default_factory=dict)
+
+
+class ToolCallResult(AgentModel):
+    tool_call_id: str
+    name: str
+    observation: ToolObservation
+
+
+class ModelUsage(AgentModel):
+    total_tokens: int | None = Field(default=None, ge=0)
+    cost_usd: float | None = Field(default=None, ge=0)
+
+
+class HarnessStep(AgentModel):
+    state: Literal["continue", "awaiting_approval", "stopped"]
+    results: list[ToolCallResult] = Field(default_factory=list)
+    pending_tool_call_id: str | None = None
+    message: str | None = None
+    run_result: "RunResult | None" = None
+
+
 class RunResult(AgentModel):
     status: RunStatus
     booking: Booking | None = None
     traces: list[TraceEvent] = Field(default_factory=list)
     handoff: dict[str, Any] | None = None
     metrics: dict[str, int | float | str | None] = Field(default_factory=dict)
+
+
+HarnessStep.model_rebuild()

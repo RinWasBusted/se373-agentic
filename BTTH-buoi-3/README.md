@@ -20,3 +20,7 @@ Phase 2 provides `MockFlightEnvironment` with `search_flights`, `check_seat`,
 `book_seat`, `pay`, and `get_booking`. The OpenAI environment variables in
 `.env.example` are only used by the live demo planned for Phase 4; tests do not
 need an API key.
+
+Phase 3 provides `HarnessSession`, which validates model-proposed tool calls,
+enforces approval and budgets, records traces, and returns a verifiable terminal
+result or handoff.

@@ -10,11 +10,16 @@ from .contracts import (
     RunResult,
     RunStatus,
     SeatQuote,
+    HarnessStep,
+    ModelUsage,
+    ProposedToolCall,
+    ToolCallResult,
     ToolObservation,
     ToolStatus,
     TraceEvent,
 )
 from .mock_environment import MockFlightEnvironment, PaymentRecord
+from .harness import HarnessSession
 
 __all__ = [
     "Approval",
@@ -26,6 +31,11 @@ __all__ = [
     "RunResult",
     "RunStatus",
     "SeatQuote",
+    "HarnessSession",
+    "HarnessStep",
+    "ModelUsage",
+    "ProposedToolCall",
+    "ToolCallResult",
     "ToolObservation",
     "ToolStatus",
     "TraceEvent",

@@ -1,6 +1,6 @@
 # BTVN#3 — Agent đặt vé máy bay
 
-## Môi trường Phase 1
+## Môi trường
 
 - Python: 3.14.7
 - LangChain: 1.4.3
@@ -9,12 +9,14 @@
 - Pydantic: 2.13.5
 - pytest: 9.1.1
 
-To run Phase 1 tests:
+To run the offline test suite:
 
 ```bash
 .venv/bin/python -m pytest -q
 ```
 
-All flight, booking, payment, and approval data in this project is mock data. The
-OpenAI environment variables in `.env.example` are only used by the live demo
-planned for Phase 4; tests do not need an API key.
+All flight, booking, payment, and approval data in this project is mock data.
+Phase 2 provides `MockFlightEnvironment` with `search_flights`, `check_seat`,
+`book_seat`, `pay`, and `get_booking`. The OpenAI environment variables in
+`.env.example` are only used by the live demo planned for Phase 4; tests do not
+need an API key.

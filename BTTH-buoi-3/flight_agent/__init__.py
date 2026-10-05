@@ -14,6 +14,7 @@ from .contracts import (
     ToolStatus,
     TraceEvent,
 )
+from .mock_environment import MockFlightEnvironment, PaymentRecord
 
 __all__ = [
     "Approval",
@@ -28,4 +29,6 @@ __all__ = [
     "ToolObservation",
     "ToolStatus",
     "TraceEvent",
+    "MockFlightEnvironment",
+    "PaymentRecord",
 ]

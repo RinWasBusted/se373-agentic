@@ -1,3 +1,7 @@
+# Local Data
+local/
+local_data/
+
 # Python
 __pycache__/
 *.py[cod]

@@ -77,17 +77,21 @@ def test_plan_model_turn_counts_toward_budget():
     assert result.result.status is RunStatus.BUDGET_EXCEEDED
 
 
-def test_cli_fake_mode_noninteractive_stops_at_approval(tmp_path, monkeypatch, capsys):
+def test_cli_live_mode_requires_provider_configuration(tmp_path, monkeypatch, capsys):
     from flight_agent import __main__
 
+    monkeypatch.chdir(tmp_path)
     path = tmp_path / "request.json"
     path.write_text(
         '{"origin":"SGN","destination":"DAD","depart_date":"2026-10-07","depart_before":"12:00","max_price_vnd":2000000,"passenger_id":"phase4-test"}',
         encoding="utf-8",
     )
-    monkeypatch.setattr("sys.argv", ["flight_agent", "--strategy", "react", "--mode", "fake", "--request-file", str(path)])
-    assert __main__.main() == 0
-    assert '"status": "awaiting_approval"' in capsys.readouterr().out
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_MODEL", raising=False)
+    monkeypatch.delenv("SE373_MODEL", raising=False)
+    monkeypatch.setattr("sys.argv", ["flight_agent", "--strategy", "react", "--mode", "openai", "--request-file", str(path)])
+    assert __main__.main() == 2
+    assert "OPENAI_API_KEY" in capsys.readouterr().err
 
 
 def test_openai_mode_requires_environment(monkeypatch):
@@ -101,3 +105,16 @@ def test_openai_mode_requires_environment(monkeypatch):
         assert "OPENAI_API_KEY" in str(error)
     else:
         raise AssertionError("OpenAIFlightModel should reject missing configuration")
+
+
+def test_gemini_mode_requires_environment(monkeypatch):
+    from flight_agent.strategies import GeminiFlightModel
+
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+    try:
+        GeminiFlightModel()
+    except ValueError as error:
+        assert "GEMINI_API_KEY" in str(error)
+    else:
+        raise AssertionError("GeminiFlightModel should reject missing configuration")

@@ -10,10 +10,11 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from .config import load_local_env
 from .contracts import Approval, BookingRequest
 from .fixtures import default_environment
 from .harness import HarnessSession
-from .strategies import HybridStrategy, OpenAIFlightModel, PlanThenExecuteStrategy, ReActStrategy
+from .strategies import GeminiFlightModel, HybridStrategy, OpenAIFlightModel, PlanThenExecuteStrategy, ReActStrategy
 
 
 STRATEGIES = {"react": ReActStrategy, "plan": PlanThenExecuteStrategy, "hybrid": HybridStrategy}
@@ -22,7 +23,7 @@ STRATEGIES = {"react": ReActStrategy, "plan": PlanThenExecuteStrategy, "hybrid":
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Mock flight-booking agent demo")
     parser.add_argument("--strategy", choices=sorted(STRATEGIES), default="react")
-    parser.add_argument("--mode", choices=["fake", "openai"], default="fake")
+    parser.add_argument("--mode", choices=["gemini", "openai"], default="openai")
     parser.add_argument("--request-file", required=True, type=Path)
     return parser.parse_args()
 
@@ -44,11 +45,12 @@ def _approval(session: HarnessSession) -> Approval | None:
 
 
 def main() -> int:
+    load_local_env()
     args = _parse_args()
     try:
         payload: dict[str, Any] = json.loads(args.request_file.read_text(encoding="utf-8"))
         request = BookingRequest.model_validate(payload)
-        model = OpenAIFlightModel() if args.mode == "openai" else None
+        model = GeminiFlightModel() if args.mode == "gemini" else OpenAIFlightModel()
     except (OSError, json.JSONDecodeError, ValidationError, ValueError) as error:
         print(json.dumps({"error": str(error)}, ensure_ascii=False), file=sys.stderr)
         return 2

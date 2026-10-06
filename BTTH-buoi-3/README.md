@@ -28,8 +28,8 @@ result or handoff.
 ## Phase 4 demo
 
 Phase 4 adds three LangGraph runners: `react`, `plan`, and `hybrid`. They all
-send proposed tool calls through the same harness. The default `fake` mode is
-deterministic and needs neither network access nor an API key.
+send proposed tool calls through the same harness. The CLI runs with a live
+model provider; deterministic model doubles are reserved for unit tests.
 
 Create a request file such as:
 
@@ -44,16 +44,39 @@ Create a request file such as:
 }
 ```
 
-Run the local demo from this directory:
+Run a live Groq demo from this directory after setting `OPENAI_API_KEY`,
+`OPENAI_BASE_URL` and `OPENAI_MODEL`:
 
 ```bash
-.venv/bin/python -m flight_agent --strategy hybrid --mode fake --request-file request.json
+.venv/bin/python -m flight_agent --strategy react --mode openai --request-file request.json
 ```
+
+The command loads these values automatically from the ignored `.env` file in
+the project directory. Environment variables already set in the shell take
+precedence.
 
 The CLI prints the exact mock payload and asks for separate approval before
 `book_seat` and `pay`. With non-interactive stdin it returns
 `awaiting_approval` and the pending payload without dispatching either action.
 
-For an optional live model decision loop, set `OPENAI_API_KEY` and `SE373_MODEL`
-from `.env.example`, then replace `--mode fake` with `--mode openai`. The model
-only proposes tool calls; no live flight or payment API is used.
+For Gemini, set `GEMINI_API_KEY` (or `GOOGLE_API_KEY`) and optionally
+`SE373_MODEL=gemini-3.8-flash`, then use `--mode gemini`. The model only
+proposes tool calls; no live flight or payment API is used.
+
+Run the live Phase 5 benchmark with the same mock fixture and approval behavior
+for all three strategies:
+
+```bash
+GEMINI_API_KEY="..." .venv/bin/python -m flight_agent.benchmark --runs 3 --model gemini-3.5-flash
+```
+
+The command emits JSON records plus aggregate success rate, model/tool calls,
+tokens and latency. Provider quota or availability errors are returned as a
+handoff and must be reported as incomplete benchmark evidence.
+
+For an OpenAI-compatible provider such as Groq, set `OPENAI_API_KEY`,
+`OPENAI_BASE_URL` and `OPENAI_MODEL`, then run:
+
+```bash
+.venv/bin/python -m flight_agent.benchmark --provider openai --runs 3
+```

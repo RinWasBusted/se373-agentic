@@ -20,7 +20,7 @@ from .contracts import (
 )
 from .mock_environment import MockFlightEnvironment, PaymentRecord
 from .harness import HarnessSession
-from .strategies import HybridStrategy, OpenAIFlightModel, PlanThenExecuteStrategy, ReActStrategy, StrategyRun
+from .strategies import GeminiFlightModel, HybridStrategy, OpenAIFlightModel, PlanThenExecuteStrategy, ReActStrategy, StrategyRun
 
 __all__ = [
     "Approval",
@@ -43,6 +43,7 @@ __all__ = [
     "MockFlightEnvironment",
     "PaymentRecord",
     "HybridStrategy",
+    "GeminiFlightModel",
     "OpenAIFlightModel",
     "PlanThenExecuteStrategy",
     "ReActStrategy",

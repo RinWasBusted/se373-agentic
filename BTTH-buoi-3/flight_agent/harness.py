@@ -28,7 +28,7 @@ from .contracts import (
     TraceEvent,
 )
 from .mock_environment import MockFlightEnvironment
-from .policy import approval_matches, build_handoff, flight_matches, verify_completion
+from .policy import approval_matches, build_handoff, flight_matches, payload_fingerprint, verify_completion
 
 
 @dataclass
@@ -84,6 +84,22 @@ class HarnessSession:
     @property
     def terminal_result(self) -> RunResult | None:
         return self._terminal
+
+    @property
+    def pending_approval(self) -> dict[str, object] | None:
+        """Return a copy of the exact action awaiting human approval."""
+        if self._pending is None:
+            return None
+        return {
+            "action": self._pending.action,
+            "payload": dict(self._pending.payload),
+            "payload_fingerprint": payload_fingerprint(self._pending.payload),
+            "tool_call_id": self._pending.calls[self._pending.index].tool_call_id,
+        }
+
+    def record_strategy_event(self, decision: str, *, action: str | None = None) -> None:
+        """Record a visible planning decision without granting execution authority."""
+        self._trace("model", action, decision)
 
     def submit_turn(
         self,
